@@ -1,6 +1,7 @@
 import asyncio
 import re
 import unicodedata
+from abc import ABC, abstractmethod
 from collections import Counter
 from pprint import pprint
 from typing import Callable, Mapping, Sequence
@@ -35,7 +36,7 @@ def keyword_counter(keywords: Sequence[str]) \
     return count_keywords
 
 
-class NewsStoryCrawler:
+class NewsStoryCrawler(ABC):
     MAX_DEPTH = 3
 
     def __init__(self, session: ClientSession, keywords: Sequence[str]):
@@ -43,14 +44,17 @@ class NewsStoryCrawler:
         self.session = session
         self.visited = set()
 
+    @abstractmethod
     def get_story(self, parser: BeautifulSoup) -> str:
         raise NotImplementedError()
 
+    @abstractmethod
     def is_story(self, url: str) -> bool:
         raise NotImplementedError()
 
+    @abstractmethod
     def should_visit(self, url: str) -> bool:
-        return True
+        raise NotImplementedError()
 
     async def crawl(self, seed):
         counts = {}
