@@ -9,8 +9,7 @@ from astronews.core import NewsStoryCrawler, normalize_article
 
 class G1Crawler(NewsStoryCrawler):
     def get_story(self, parser: BeautifulSoup) -> str:
-        article = parser.find('article')
-        return normalize_article(article.text) if article else ''
+        return parser.find('article')
 
     def is_story(self, url: str) -> bool:
         return '/noticia/' in url

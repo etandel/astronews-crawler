@@ -15,7 +15,7 @@ async def fetch(session, url):
         return await response.text()
 
 
-def normalize_article(article: str) -> str:
+def normalize_story(article: str) -> str:
     '''
     Transforma tudo em minúscula e remove diacríticos (acento, cedilha etc.),
     emojis e outras bizarrices unicode.
@@ -73,7 +73,9 @@ class NewsStoryCrawler(ABC):
             parser = BeautifulSoup(content, 'lxml')
 
             if self.is_story(url):
-                counts[url] = count_kws(self.get_story(parser))
+                story = self.get_story(parser)
+                story = normalize_story(story.text) if story else ''
+                counts[url] = count_kws(story)
                 pprint(counts[url])
 
             if depth < self.MAX_DEPTH:
