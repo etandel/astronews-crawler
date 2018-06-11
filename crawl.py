@@ -21,12 +21,22 @@ class G1Crawler(NewsStoryCrawler):
         return 'g1.globo.com' in url
 
 
-async def main():
-#    seed = 'http://g1.globo.com/ciencia-e-saude/'
-    seed = 'https://g1.globo.com/bemestar/noticia/toxoplasmose-entenda-os-sintomas-e-como-se-prevenir.ghtml'
+class R7Crawler(NewsStoryCrawler):
+    DEFAULT_SEED = 'https://noticias.r7.com/tecnologia-e-ciencia/fabrica-de-produtos-amazon-e-investigada-por-trabalho-ilegal-11062018'
+
+    def get_story(self, parser: BeautifulSoup) -> str:
+        return parser.find('article')
+
+    def is_story(self, url: str) -> bool:
+        return True
+
+    def should_visit(self, url: str) -> bool:
+        return 'noticias.r7.com' in url
+
 
 CRAWLERS = {
     'g1': G1Crawler,
+    'r7': R7Crawler,
 }
 
 
