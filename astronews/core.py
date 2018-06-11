@@ -38,6 +38,7 @@ def keyword_counter(keywords: Sequence[str]) \
 
 class NewsStoryCrawler(ABC):
     MAX_DEPTH = 3
+    DEFAULT_SEED = ''
 
     def __init__(self, session: ClientSession, keywords: Sequence[str]):
         self.keywords = keywords
@@ -56,13 +57,13 @@ class NewsStoryCrawler(ABC):
     def should_visit(self, url: str) -> bool:
         raise NotImplementedError()
 
-    async def crawl(self, seed):
+    async def crawl(self, seed=''):
         counts = {}
         visited = set()
         count_kws = keyword_counter(self.keywords)
 
         q = asyncio.LifoQueue()
-        await q.put((0, seed))
+        await q.put((0, seed or self.DEFAULT_SEED))
 
         while not q.empty():
             depth, url = await q.get()
