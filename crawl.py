@@ -1,12 +1,13 @@
 # encoding: utf-8
-from queue import Queue, LifoQueue
+from collections import Counter
+from queue import LifoQueue
 import re
 import requests
 import unicodedata
 from pprint import pprint
 
 from bs4 import BeautifulSoup
-from typing import Dict, Sequence
+from typing import Callable, Mapping, Sequence
 
 
 MAX_DEPTH = 3
@@ -28,8 +29,15 @@ def get_g1_article_normalized(parser: BeautifulSoup) -> str:
     return normalize(article.text) if article else ''
 
 
-def count_keywords(keywords: Sequence[str], article: str) -> Dict[str, int]:
-    return {kw: len(re.findall(kw, article)) for kw in keywords}
+def keyword_counter(keywords: Sequence[str]) \
+        -> Callable[[str], Mapping[str, int]]:
+
+    reg = re.compile(r'\b(?:{})\b'.format('|'.join(keywords)))
+
+    def count_keywords(article):
+        return Counter(reg.findall(article))
+
+    return count_keywords
 
 
 def should_process(url):
@@ -45,6 +53,7 @@ if __name__ == '__main__':
 
     q = LifoQueue()
     visited = set()
+    count_kws = keyword_counter(KEY_WORDS)
 
 #    seed = 'http://g1.globo.com/ciencia-e-saude/'
     seed = 'https://g1.globo.com/bemestar/noticia/toxoplasmose-entenda-os-sintomas-e-como-se-prevenir.ghtml'
@@ -64,7 +73,7 @@ if __name__ == '__main__':
 
             if should_process(url):
                 article = get_g1_article_normalized(parser)
-                counts[url] = count_keywords(KEY_WORDS, article)
+                counts[url] = count_kws(article)
                 pprint(counts[url])
 
             if depth < MAX_DEPTH:
